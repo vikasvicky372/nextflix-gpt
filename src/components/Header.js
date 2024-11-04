@@ -11,7 +11,7 @@ const Header = () => {
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log(user);
+  //console.log(user);
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (user) => {
@@ -39,10 +39,10 @@ const Header = () => {
     signOut(auth)
       .then(() => {
         // Sign-out successful.
-        navigate("/");
+        
       })
       .catch((error) => {
-        navigate("/Error");
+        
       });
   };
 
@@ -62,7 +62,7 @@ const Header = () => {
           />
           <button
             onClick={handleSignOut}
-            className="font-bold text-black text-3xl"
+            className="font-bold text-red-800 text-3xl"
           >
             <FaSignOutAlt />
           </button>

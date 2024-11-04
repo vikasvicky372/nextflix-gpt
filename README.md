@@ -26,6 +26,15 @@
 - BUGfix: updated the displayname and profile URL and updated the user in store
 - BUGFix: If the user is not logged in then navigate from "/browse" to login page and vice versa
 - unsubscribing to onAuthStateChanged on component unmount
+- register TMDB API & create app
+- getting data from TMDB now playing movies API
+- create moviesSlice and update the store with movies data
+- planning for main container and secondary container
+-  create a hook to separate the movie fetching data
+- video Title is created
+- fetch movie trailers using movieId
+- created a hook to separate the movie trailers fetchng logic
+- create videobackground and embedded youtube with iframe
 
 
 
