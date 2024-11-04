@@ -2,10 +2,22 @@ import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
 import { IoInformationCircleOutline } from "react-icons/io5";
+import { auth } from "../firebaseConfig";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
+} from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
+import { BACKGROUND_IMAGE, USER_AVATAR } from "../utils/constants";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
-  const [errorMessage,setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const name = useRef(null);
   const email = useRef(null);
@@ -18,8 +30,70 @@ const Login = () => {
   const handleClick = () => {
     console.log(email.current.value);
     console.log(password.current.value);
-    const message = checkValidData(email.current.value,password.current.value);
+    const message = isSignInForm?checkValidData(email.current.value, password.current.value): checkValidData(email.current.value, password.current.value, name.current.value);
+     
     setErrorMessage(message);
+
+    if (message) return;
+
+    if (!isSignInForm) {
+      //sign up logic
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          updateProfile(auth.currentUser, {
+            displayName: name.current.value,
+            photoURL: USER_AVATAR,
+          })
+            .then(() => {
+              // Profile updated!
+              const currentUser = auth.currentUser;
+              const {uid, email, displayName, photoURL} = currentUser;
+              dispatch(addUser({
+                uid: uid,
+                email: email,
+                displayName: displayName,
+                photoURL: photoURL
+              }))
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+            });
+          navigate("/browse");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " " + errorMessage);
+          // ..
+        });
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          // ...
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " " + errorMessage);
+        });
+    }
   };
 
   return (
@@ -27,16 +101,16 @@ const Login = () => {
       <Header />
       <div className="absolute">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/151f3e1e-b2c9-4626-afcd-6b39d0b2694f/web/IN-en-20241028-TRIFECTA-perspective_bce9a321-39cb-4cce-8ba6-02dab4c72e53_large.jpg"
-          alt="backgrounf-image"
+          src={BACKGROUND_IMAGE}
+          alt="background-image"
         />
       </div>
       <div>
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="absolute bg-black/90 w-3/12 m-auto right-0 left-0 mt-36 p-8 rounded text-white "
+          className="absolute bg-black/80 w-3/12 m-auto right-0 left-0 mt-36 p-8 rounded text-white "
         >
-          <h1 className="font-bold text-3xl p-2 mb-8 w-11/12 m-auto">
+          <h1 className="font-bold text-3xl py-2 mb-8 w-11/12 m-auto">
             {isSignInForm ? "Sign In" : "Sign Up"}
           </h1>
           {!isSignInForm && (
@@ -59,10 +133,15 @@ const Login = () => {
             type="password"
             placeholder="password"
           ></input>
-          {errorMessage &&<span className="inline-flex w-11/12 mx-auto p-2 text-red-700"><IoInformationCircleOutline className="text-2xl" /><p className="ml-2">{errorMessage}</p></span> }
+          {errorMessage && (
+            <span className="inline-flex w-11/12 mx-auto p-2 text-red-700">
+              <IoInformationCircleOutline className="text-2xl" />
+              <p className="ml-2">{errorMessage}</p>
+            </span>
+          )}
           <button
             onClick={handleClick}
-            className="block w-11/12 m-auto p-2 bg-red-800 mt-12 mb-6 rounded "
+            className="block w-11/12 m-auto p-2 bg-red-600 mt-12 mb-6 font-semibold rounded  hover:bg-red-800"
           >
             {isSignInForm ? "Sign In" : "Sign Up"}
           </button>

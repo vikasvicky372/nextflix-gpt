@@ -1,12 +1,75 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { FaSignOutAlt } from "react-icons/fa";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../firebaseConfig";
+import { useNavigate } from "react-router-dom";
+import { addUser, removeUser } from "../utils/userSlice";
+import { NETFLIX_LOGO } from "../utils/constants";
 
 const Header = () => {
-  return (
-    <div className='py-2 px-6 absolute bg-gradient-to-b from-black z-10'>
-      <img  className="w-48 "src="https://cdn.cookielaw.org/logos/dd6b162f-1a32-456a-9cfe-897231c7763c/4345ea78-053c-46d2-b11e-09adaef973dc/Netflix_Logo_PMS.png"
-       alt='Logo'/>
-    </div>
-  )
-}
+  const user = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  console.log(user);
 
-export default Header
+  useEffect(() => {
+    const unSubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const { uid, email, displayName, photoURL } = user;
+        dispatch(
+          addUser({
+            uid: uid,
+            email: email,
+            displayName: displayName,
+            photoURL: photoURL,
+          })
+        );
+         navigate("/browse");
+      } else {
+        dispatch(removeUser());
+         navigate("/");
+      }
+    });
+
+    return () => unSubscribe();
+  }, [dispatch,navigate]);
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        navigate("/");
+      })
+      .catch((error) => {
+        navigate("/Error");
+      });
+  };
+
+  return (
+    <div className="py-2 w-screen px-6 absolute bg-gradient-to-b from-black z-10 flex justify-between">
+      <img
+        className="w-48 "
+        src= {NETFLIX_LOGO}
+        alt="Logo"
+      />
+      {user && (
+        <div className="flex">
+          <img
+            className="m-4 w-12 h-12 rounded-md"
+            src={user?.photoURL}
+            alt="user-logo"
+          />
+          <button
+            onClick={handleSignOut}
+            className="font-bold text-black text-3xl"
+          >
+            <FaSignOutAlt />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Header;
