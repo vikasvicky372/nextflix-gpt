@@ -11,8 +11,10 @@ import {
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { BACKGROUND_IMAGE, USER_AVATAR } from "../utils/constants";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const dispatch = useDispatch();
@@ -107,7 +109,7 @@ const Login = () => {
           className="absolute bg-black/80 w-3/12 m-auto right-0 left-0 mt-36 p-8 rounded text-white "
         >
           <h1 className="font-bold text-3xl py-2 mb-8 w-11/12 m-auto">
-            {isSignInForm ? "Sign In" : "Sign Up"}
+            {isSignInForm ? t("login.signin") : t("login.signUp")}
           </h1>
           {!isSignInForm && (
             <input
@@ -121,13 +123,13 @@ const Login = () => {
             ref={email}
             className="block w-11/12 m-auto p-2 my-5 bg-gray-700 rounded "
             type="text"
-            placeholder="Email address"
+            placeholder={t("login.emailAddress")}
           ></input>
           <input
             ref={password}
             className="block w-11/12 m-auto p-2 my-5 bg-gray-700 rounded"
             type="password"
-            placeholder="password"
+            placeholder={t("login.password")}
           ></input>
           {errorMessage && (
             <span className="inline-flex w-11/12 mx-auto p-2 text-red-700">
@@ -139,25 +141,25 @@ const Login = () => {
             onClick={handleClick}
             className="block w-11/12 m-auto p-2 bg-red-600 mt-12 mb-6 font-semibold rounded  hover:bg-red-800"
           >
-            {isSignInForm ? "Sign In" : "Sign Up"}
+            {isSignInForm ? t("login.signin") : t("login.signUp")}
           </button>
           <h4 className="text-center hover:underline hover:cursor-pointer">
-            Forgot password?
+          {t("login.forgotPassword")}
           </h4>
           <div className="my-4 w-11/12 m-auto">
             <input
               className="hover:cursor-pointer size-6 indeterminate:bg-gray-300"
               type="checkbox"
             ></input>
-            <h4 className="inline-block align-top pl-2 ml-2">Remember me</h4>
+            <h4 className="inline-block align-top pl-2 ml-2">{t("login.rememberMe")}</h4>
           </div>
           <div className="w-11/12 m-auto">
-            <span className="text-neutral-300 text-md">New to neflix?</span>
+            <span className="text-neutral-300 text-md">{t("login.newToNetflix")}</span>
             <span
               onClick={toggleSignIn}
               className="pl-1 hover:cursor-pointer hover:underline"
             >
-              {isSignInForm ? "Sign Up Now" : "Sign In Now"}
+              {!isSignInForm ? t("login.signInLink") : t("login.signUpLink")}
             </span>
           </div>
         </form>
