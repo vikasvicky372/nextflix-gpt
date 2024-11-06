@@ -27,7 +27,7 @@ const Body = () => {
 
 const App = () => (
   <Provider store={appStore}>
-    <Body />
+    <Body/>
   </Provider>
 );
 
